@@ -1,0 +1,28 @@
+name: CI
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+jobs:
+  build:
+    runs-on: 	macos-latest
+    steps:
+      - name: Get the version
+        id: get_version
+        run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\//}
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v2.7.2
+        with:
+          version: 5.13.2
+      - name: Clone repo
+        run: |
+          git clone --recursive https://github.com/uglide/RedisDesktopManager.git -b 2020.3 rdm 
+      - name: Install requirements
+        run: |
+          set -x
+          cd rdm
+          mkdir -p ./bin/osx/release
+          cd bin/osx/release
+          echo -e '[install]\nprefix=' >> setup.cfg
+          pip3 install -t ./ -r ../../../src/py/requirements.txt --upgrade
